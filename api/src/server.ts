@@ -1,5 +1,5 @@
 import http from 'http'
-import { Server } from 'socket.io'
+import { Server, Socket } from 'socket.io'
 import { speechToText } from './services/speech-to-text'
 
 const httpServer = http.createServer()
@@ -9,7 +9,10 @@ const io = new Server(httpServer, {
   }
 })
 
-io.on('connection', (socket) => {
+io.on('connection', (socket: Socket) => {
+  console.log('Client connected', socket.handshake.query.sessionId)
+  socket.sessionId = socket.handshake.query.sessionId as string
+
   const recognizeStream = speechToText
     .on('error', (err) => {
       console.error(err)
