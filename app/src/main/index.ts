@@ -9,6 +9,7 @@ function createWindow(): void {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
     width: 500,
+    height: 80,
     show: false,
     autoHideMenuBar: true,
     ...(process.platform === 'linux' ? { icon } : {}),
@@ -27,6 +28,26 @@ function createWindow(): void {
 
   mainWindow.on('ready-to-show', () => {
     mainWindow.show()
+  })
+
+  ipcMain.on('resize-window', (_event, width, height) => {
+    mainWindow.setContentSize(width, height)
+  })
+
+  ipcMain.on('decrease-height', () => {
+    if (mainWindow) {
+      const [width, height] = mainWindow.getContentSize()
+      const newHeight = height - 82
+      mainWindow.setContentSize(width, newHeight)
+    }
+  })
+
+  ipcMain.on('increase-height', () => {
+    if (mainWindow) {
+      const [width, height] = mainWindow.getContentSize()
+      const newHeight = height + 41
+      mainWindow.setContentSize(width, newHeight)
+    }
   })
 
   mainWindow.webContents.setWindowOpenHandler((details) => {

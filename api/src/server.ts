@@ -12,7 +12,12 @@ import { supabase } from './lib/supabase'
 
 const app = express()
 const server = createServer(app)
-const io = new Server(server)
+const io = new Server(server, {
+  cors: {
+    origin: '*',
+    methods: ['GET', 'POST']
+  }
+})
 
 app.use(cors())
 app.use(express.json())
@@ -93,7 +98,8 @@ supabase.realtime
         .limit(30)
 
       const messages = lastsMessages.data?.map((message) => ({
-        role: message.type,
+        role: 'user',
+        name: message.type,
         content: message.transcript
       }))
 
@@ -119,6 +125,8 @@ supabase.realtime
     </task>
     <constraints>
         - Não forneça qualquer introdução, preâmbulo ou comentário; apenas entregue os insights.
+        - Caso nao tenha nada relevante para responder, e ja tenha respondido sobre assunto anterior, não responda nada.
+        - Respostas curtas e diretas.
         - Assegure-se de que os insights sejam claros, concisos e diretamente aplicáveis ao contexto de vendas.
         - Evite usar jargões técnicos, a menos que sejam necessários e compreendidos pelo vendedor.
     </constraints>
@@ -139,17 +147,26 @@ supabase.realtime
           },
           {
             role: 'tool',
+            tool_call_id: '123',
             content: mockedRag
           },
-          ...(messages || [])
+          // shiii 🤫
+          ...((messages as any) || [])
         ],
         max_completion_tokens: 50,
         model: 'llama3-8b-8192'
       })
 
-      console.log(chatCompletion.choices[0]?.message.content)
+      const response = chatCompletion.choices[0]?.message.content
 
-      io.emit('message', chatCompletion.choices[0]?.message.content)
+      const connectedSockets = io.sockets.sockets
+
+      if (!response) return
+
+      // I'm doing a broadcast because I dont want put the sessionId now, just focus on the demo
+      connectedSockets.forEach((socket) => {
+        socket.emit('message', response)
+      })
     }
   )
   .subscribe()

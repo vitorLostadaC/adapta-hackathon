@@ -1,30 +1,56 @@
-import { useEffect } from 'react'
-import { toast, ToastContainer, Zoom } from 'react-toastify'
-
+import { useEffect, useState } from 'react'
+import { io } from 'socket.io-client'
+import { v4 } from 'uuid'
 import { Header } from './Header'
+import { Toast } from './Toast'
+
+type ToastType = {
+  key: string | number
+  message: string
+}
+
+const socket = io('http://localhost:3333')
 
 export const Widget = () => {
+  const [toasts, setToasts] = useState<ToastType[]>([])
+
   useEffect(() => {
-    toast('Wow so easy!')
+    socket.connect()
+
+    socket.on('message', (message) => {
+      handleAddToast(message)
+    })
+
+    return () => {
+      socket.off('message')
+    }
   }, [])
+
+  const handleAddToast = (message: string) => {
+    setToasts((prevState) => [
+      ...prevState,
+      {
+        key: v4(),
+        message
+      }
+    ])
+  }
+
+  const handleRemoveToast = (key: string | number) => {
+    setToasts((prevState = []) => prevState.filter((toast) => toast.key !== key))
+  }
 
   return (
     <div className="h-full">
       <Header />
 
-      <div className="h-full w-full mt-5 bg-white opacity-5 rounded-md" />
+      {toasts?.map((toast) => (
+        <Toast key={toast.key} onComplete={() => handleRemoveToast(toast.key)}>
+          {toast.message}
+        </Toast>
+      ))}
 
-      <ToastContainer
-        toastClassName="w-[40px] rounded-md bg-gray-700 top-25"
-        progressClassName="bg-green-500"
-        theme={undefined}
-        position="top-center"
-        autoClose={5000}
-        transition={Zoom}
-        pauseOnHover
-        closeOnClick={false}
-        closeButton={false}
-      />
+      <div className="h-full w-full mt-5 bg-white opacity-5 rounded-md"></div>
     </div>
   )
 }
