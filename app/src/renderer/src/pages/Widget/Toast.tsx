@@ -3,7 +3,7 @@ import { useCountdown } from '../../hooks/useCountdown'
 import { useWindowHeightSync } from '../../hooks/useWindowHeightSync'
 
 // Duration the toast stays on screen (ms)
-const DURATION = 5000
+const DURATION = 7000
 
 interface ToastProps extends ComponentProps<'div'> {
   onComplete?: () => void

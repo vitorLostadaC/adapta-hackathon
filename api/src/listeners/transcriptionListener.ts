@@ -21,7 +21,7 @@ export function initTranscriptionListener(io: SocketIOServer): void {
           .from('transcriptions')
           .select('*')
           .eq('session_id', lastMessage.session_id)
-          .order('created_at', { ascending: true })
+          .order('created_at', { ascending: false })
           .limit(30)
 
         const messages = lastsMessages.data?.map((message) => ({
@@ -51,25 +51,16 @@ export function initTranscriptionListener(io: SocketIOServer): void {
         - Garantir que os insights sejam adaptados às necessidades e objetivos específicos da chamada de vendas.
     </task>
     <constraints>
-        - Não forneça qualquer introdução, preâmbulo ou comentário; apenas entregue os insights.
-        - Caso nao tenha nada relevante para responder, e ja tenha respondido sobre assunto anterior, não responda nada.
-        - Respostas curtas e diretas.
-        - Assegure-se de que os insights sejam claros, concisos e diretamente aplicáveis ao contexto de vendas.
-        - Evite usar jargões técnicos, a menos que sejam necessários e compreendidos pelo vendedor.
+        - Responda as perguntas do cliente, sem introduções ou preâmbulos.
+        - Se não houver informações novas ou relevantes para compartilhar, não responda.
+        - Mantenha respostas concisas e objetivas
+        - Foque exclusivamente no contexto da chamada de vendas em andamento.
+        - Ignore conversas casuais, quebra-gelos ou assuntos não relacionados a vendas.
+        - Use linguagem clara e acessível, evitando jargões técnicos desnecessários.
+        - Priorize insights acionáveis que o vendedor possa aplicar imediatamente.
+        - Resposda apenas uma string vazia se nao houver nada relevante para responder.
+        - Responda apenas em portugues brasileiro.
     </constraints>
-    <examples>
-        <example>
-            <input>
-                - O vendedor está em uma chamada com um cliente potencial interessado no produto X.
-            </input>
-            <output>
-                - Destaque as características únicas do produto X que o diferenciam dos concorrentes.
-                - Mencione quaisquer promoções ou descontos atuais disponíveis para o produto X.
-                - Forneça dados sobre as classificações recentes de satisfação do cliente para o produto X.
-                - Não forneça qualquer informação da qual não tenha certeza.
-            </output>
-        </example>
-    </examples>
 </instructions>`
             },
             {
@@ -80,8 +71,8 @@ export function initTranscriptionListener(io: SocketIOServer): void {
             // shii 🤫
             ...((messages as any) || [])
           ],
-          max_completion_tokens: 50,
-          model: 'llama3-8b-8192'
+          max_completion_tokens: 30,
+          model: 'llama-3.3-70b-versatile'
         })
 
         const response = chatCompletion.choices[0]?.message.content
