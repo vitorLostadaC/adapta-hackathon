@@ -150,7 +150,8 @@ supabase.realtime
             tool_call_id: '123',
             content: mockedRag
           },
-          ...(messages || [])
+          // shiii 🤫
+          ...((messages as any) || [])
         ],
         max_completion_tokens: 50,
         model: 'llama3-8b-8192'
