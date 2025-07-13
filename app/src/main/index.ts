@@ -1,6 +1,6 @@
-import { app, shell, BrowserWindow, ipcMain, screen } from 'electron'
+import { electronApp, is, optimizer } from '@electron-toolkit/utils'
+import { app, BrowserWindow, desktopCapturer, ipcMain, screen, session, shell } from 'electron'
 import { join } from 'path'
-import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 
 function createWindow(): void {
@@ -59,6 +59,19 @@ app.whenReady().then(() => {
 
   // IPC test
   ipcMain.on('ping', () => console.log('pong'))
+
+  // Allow renderer to request display-media that includes loopback (system) audio.
+  // On Windows and macOS ≥ 13 this lets us capture the computer’s audio without extra drivers.
+  // We pick the first screen; adapt if you need multi-monitor selection.
+  session.defaultSession.setDisplayMediaRequestHandler(async (_request, callback) => {
+    const sources = await desktopCapturer.getSources({ types: ['screen'] })
+    if (sources.length === 0) {
+      callback({})
+      return
+    }
+
+    callback({ video: sources[0], audio: 'loopback' }) // capture system output
+  })
 
   createWindow()
 

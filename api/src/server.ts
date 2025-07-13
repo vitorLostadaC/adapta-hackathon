@@ -45,7 +45,7 @@ app.post('/transcribe', upload.single('audio'), async (req, res) => {
     fs.unlinkSync(audioPath)
     fs.unlinkSync(speededPath)
 
-    console.log(transcription.text)
+    console.log(type, transcription.text)
 
     await supabase.from('transcriptions').insert({
       transcript: transcription.text,
