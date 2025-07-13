@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
 import { io } from 'socket.io-client'
 import { v4 } from 'uuid'
-import { Header } from './Header'
-import { Toast } from './Toast'
+import { Header } from './header'
+import { Toast } from './toast'
 
 type ToastType = {
   key: string | number

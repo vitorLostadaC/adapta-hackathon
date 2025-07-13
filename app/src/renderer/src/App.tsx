@@ -1,5 +1,4 @@
-// import { Header } from './components/Header'
-import { Widget } from './pages/Widget'
+import { Widget } from './pages/widget'
 
 function App(): React.JSX.Element {
   return (
