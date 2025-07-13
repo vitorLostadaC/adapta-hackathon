@@ -8,33 +8,17 @@ function createWindow(): void {
 
   // Create the browser window.
   const mainWindow = new BrowserWindow({
-    // width: 500,
-    // show: false,
-    // autoHideMenuBar: true,
-    // ...(process.platform === 'linux' ? { icon } : {}),
-    // frame: false,
-    // resizable: false,
-    // alwaysOnTop: true,
-    // hasShadow: false,
-    // y: 80,
-    // transparent: true, // fundo transparente
-    // x: Math.floor(width / 2) - 250,
-    // webPreferences: {
-    //   preload: join(__dirname, '../preload/index.js'),
-    //   sandbox: false
-    // }
-
-    width: 1120,
-    height: 700,
+    width: 500,
     show: false,
-    backgroundColor: '#17141f',
-    titleBarStyle: 'hiddenInset',
-    trafficLightPosition: {
-      x: 20,
-      y: 20
-    },
     autoHideMenuBar: true,
     ...(process.platform === 'linux' ? { icon } : {}),
+    frame: false,
+    resizable: false,
+    alwaysOnTop: true,
+    hasShadow: false,
+    y: 80,
+    transparent: true,
+    x: Math.floor(width / 2) - 250,
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
       sandbox: false
