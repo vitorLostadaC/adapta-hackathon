@@ -1,6 +1,6 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { io } from 'socket.io-client'
 import { v4 } from 'uuid'
-
 import { Header } from './Header'
 import { Toast } from './Toast'
 
@@ -9,15 +9,29 @@ type ToastType = {
   message: string
 }
 
-export const Widget = () => {
-  const [toasts, setToasts] = useState<ToastType[]>()
+const socket = io('http://localhost:3333')
 
-  const handleAddToast = () => {
-    setToasts((prevState = []) => [
+export const Widget = () => {
+  const [toasts, setToasts] = useState<ToastType[]>([])
+
+  useEffect(() => {
+    socket.connect()
+
+    socket.on('message', (message) => {
+      handleAddToast(message)
+    })
+
+    return () => {
+      socket.off('message')
+    }
+  }, [])
+
+  const handleAddToast = (message: string) => {
+    setToasts((prevState) => [
       ...prevState,
       {
         key: v4(),
-        message: 'teste'
+        message
       }
     ])
   }
@@ -28,7 +42,7 @@ export const Widget = () => {
 
   return (
     <div className="h-full">
-      <Header testeToast={() => handleAddToast()} />
+      <Header />
 
       {toasts?.map((toast) => (
         <Toast key={toast.key} onComplete={() => handleRemoveToast(toast.key)}>
