@@ -42,10 +42,11 @@ function createWindow(): void {
     }
   })
 
-  ipcMain.on('increase-height', (_event, height: number) => {
+  ipcMain.handle('increase-height', (_event, height: number) => {
     if (mainWindow) {
       const [width, currentHeight] = mainWindow.getContentSize()
-      const newHeight = currentHeight + height
+      // Electron expects integers for width & height. Round to the nearest px.
+      const newHeight = Math.round(currentHeight + height)
       mainWindow.setContentSize(width, newHeight)
     }
   })

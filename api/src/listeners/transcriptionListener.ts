@@ -85,6 +85,7 @@ export function initTranscriptionListener(io: SocketIOServer): void {
         })
 
         const response = chatCompletion.choices[0]?.message.content
+
         if (!response) return
 
         // Broadcast the response to all connected clients (demo purpose)

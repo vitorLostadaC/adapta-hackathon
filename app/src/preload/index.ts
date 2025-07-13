@@ -8,7 +8,7 @@ const api = {
   },
 
   increaseHeight: (height: number) => {
-    ipcRenderer.send('increase-height', height)
+    ipcRenderer.invoke('increase-height', height)
   },
 
   decreaseHeight: () => {
