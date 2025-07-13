@@ -15,8 +15,10 @@
     "typescript": "^5"
   },
   "dependencies": {
+    "@ai-sdk/groq": "^1.2.9",
     "@google-cloud/speech": "^7.2.0",
     "@supabase/supabase-js": "^2.50.5",
+    "ai": "^4.3.17",
     "socket.io": "^4.8.1",
     "zod": "^4.0.5"
   }
