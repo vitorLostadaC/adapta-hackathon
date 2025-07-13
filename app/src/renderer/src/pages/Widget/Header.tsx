@@ -1,7 +1,11 @@
 import { useState } from 'react'
 import { FaMicrophone, FaCircleStop } from 'react-icons/fa6'
 
-export const Header = () => {
+type HeaderProps = {
+  testeToast(): void
+}
+
+export const Header = ({ testeToast }: HeaderProps) => {
   const [isRecording, setIsRecording] = useState<boolean>(false)
 
   return (
@@ -9,7 +13,10 @@ export const Header = () => {
       <button
         type="button"
         className="region-noDrag"
-        onClick={() => setIsRecording((prevState) => !prevState)}
+        onClick={() => {
+          setIsRecording((prevState) => !prevState)
+          testeToast()
+        }}
       >
         {isRecording ? (
           <FaCircleStop className="text-red-700 hover:text-red-800" size={20} />
