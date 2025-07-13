@@ -14,6 +14,10 @@ export const Toast = ({ children, onComplete, ...props }: ToastProps) => {
   const frameRef = useRef<number | null>(null)
 
   useEffect(() => {
+    window.api.increaseHeight()
+  }, [])
+
+  useEffect(() => {
     const step = (timestamp: number) => {
       if (startTimeRef.current === null) {
         startTimeRef.current = timestamp
@@ -28,6 +32,7 @@ export const Toast = ({ children, onComplete, ...props }: ToastProps) => {
         frameRef.current = requestAnimationFrame(step)
       } else {
         onComplete?.()
+        window.api.decreaseHeight()
       }
     }
 
