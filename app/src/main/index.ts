@@ -1,14 +1,38 @@
-import { app, shell, BrowserWindow, ipcMain } from 'electron'
+import { app, shell, BrowserWindow, ipcMain, screen } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 
 function createWindow(): void {
+  const { width } = screen.getPrimaryDisplay().workAreaSize
+
   // Create the browser window.
   const mainWindow = new BrowserWindow({
-    width: 900,
-    height: 670,
+    // width: 500,
+    // show: false,
+    // autoHideMenuBar: true,
+    // ...(process.platform === 'linux' ? { icon } : {}),
+    // frame: false,
+    // resizable: false,
+    // alwaysOnTop: true,
+    // hasShadow: false,
+    // y: 80,
+    // transparent: true, // fundo transparente
+    // x: Math.floor(width / 2) - 250,
+    // webPreferences: {
+    //   preload: join(__dirname, '../preload/index.js'),
+    //   sandbox: false
+    // }
+
+    width: 1120,
+    height: 700,
     show: false,
+    backgroundColor: '#17141f',
+    titleBarStyle: 'hiddenInset',
+    trafficLightPosition: {
+      x: 20,
+      y: 20
+    },
     autoHideMenuBar: true,
     ...(process.platform === 'linux' ? { icon } : {}),
     webPreferences: {
