@@ -9,7 +9,9 @@
     "build": "bun build src/server.ts --outdir ./dist"
   },
   "devDependencies": {
-    "@types/bun": "latest"
+    "@types/bun": "latest",
+    "@types/express": "^5.0.3",
+    "@types/multer": "^2.0.0"
   },
   "peerDependencies": {
     "typescript": "^5"
@@ -19,7 +21,13 @@
     "@google-cloud/speech": "^7.2.0",
     "@supabase/supabase-js": "^2.50.5",
     "ai": "^4.3.17",
+    "axios": "^1.10.0",
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "multer": "^2.0.1",
+    "openai": "^5.9.0",
     "socket.io": "^4.8.1",
+    "voice-activity-detection": "^0.0.5",
     "zod": "^4.0.5"
   }
 }

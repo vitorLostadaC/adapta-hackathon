@@ -1,111 +1,57 @@
-import console from 'console'
-import http from 'http'
-import { Server, Socket } from 'socket.io'
-import { supabase } from './lib/supabase'
-import { createSpeechToTextStream } from './services/speech-to-text'
+import cors from 'cors'
+import express from 'express'
+import fs from 'fs'
+import { createServer } from 'http'
+import multer from 'multer'
+import path from 'path'
+import { openai } from './services/open-ai'
 
-const httpServer = http.createServer()
-const io = new Server(httpServer, {
-  cors: {
-    origin: '*'
+const app = express()
+const server = createServer(app)
+
+app.use(cors())
+app.use(express.json())
+
+const storage = multer.diskStorage({
+  destination: 'uploads/',
+  filename: (req, file, cb) => {
+    // Preserve original extension so OpenAI can detect the audio format
+    const ext = path.extname(file.originalname) || '.webm'
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9)
+    cb(null, `${file.fieldname}-${uniqueSuffix}${ext}`)
   }
 })
 
-io.on('connection', (socket: Socket) => {
-  console.log('Client connected', socket.handshake.query.sessionId)
-  socket.sessionId = socket.handshake.query.sessionId as string
+const upload = multer({ storage })
+app.post('/transcribe', upload.single('audio'), async (req, res) => {
+  try {
+    const file = req.file
+    if (!file) {
+      return res.status(400).json({ error: 'No audio file uploaded' })
+    }
 
-  const createRecognizeStream = () => {
-    console.log('[STT] Creating new recognize stream')
+    const audioPath = file.path
 
-    const stream = createSpeechToTextStream()
-      .on('error', (err) => {
-        console.error(err)
-        socket.disconnect()
-      })
-      .on('data', (data) => {
-        const result = data.results[0]
-
-        if (result) {
-          const transcript = result.alternatives[0].transcript
-          const isFinal = result.isFinal
-
-          socket.emit('transcription', { transcript, isFinal })
-          console.log(`[STT] Transcript: "${transcript}" | isFinal=${isFinal}`)
-
-          if (isFinal) {
-            supabase
-              .from('transcriptions')
-              .insert({
-                session_id: socket.sessionId,
-                transcript,
-                type: socket.currentType
-              })
-              .then(({ error }) => {
-                if (error) {
-                  console.error(error)
-                }
-              })
-          }
-        }
-      })
-
-      // Debug when Google finishes the stream
-      .on('end', () => {
-        console.log('[STT] Google recognize stream ended (readable end)')
-      })
-      .on('close', () => {
-        console.log('[STT] Google recognize stream closed')
-      })
-
-    // Debug writable finish
-    stream.on('finish', () => {
-      console.log('[STT] Recognize stream finished (writable finish)')
+    console.time('openai')
+    const transcription = await openai.audio.transcriptions.create({
+      file: fs.createReadStream(audioPath),
+      model: 'whisper-1',
+      language: 'pt'
     })
+    console.timeEnd('openai')
 
-    return stream
+    console.log(transcription.text)
+
+    // Remove temporary uploaded file
+    fs.unlinkSync(audioPath)
+
+    return res.json({ transcription: transcription.text })
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Unknown error'
+    return res.status(500).json({ error: message })
   }
-
-  let recognizeStream = createRecognizeStream()
-
-  socket.on('audio', (data) => {
-    // Restart stream if user switched speaking role OR if current stream is already closed
-    const streamEnded =
-      recognizeStream.writableEnded || !recognizeStream.writable
-
-    console.log(
-      `[AUDIO] Received chunk - size: ${
-        data.data?.byteLength ?? data.data?.size ?? 'unknown'
-      } bytes | type: ${data.type} | streamEnded: ${streamEnded}`
-    )
-
-    if (socket.currentType !== data.type || streamEnded) {
-      // End the previous stream if it is still open
-      if (!recognizeStream.writableEnded) {
-        recognizeStream.end()
-      }
-
-      socket.currentType = data.type
-      recognizeStream = createRecognizeStream()
-    }
-
-    // At this point we are guaranteed to have a writable stream
-    if (recognizeStream.writable) {
-      recognizeStream.write(data.data)
-    }
-  })
-
-  socket.on('end', () => {
-    recognizeStream.end()
-    // prepare new stream for potential next segment
-    recognizeStream = createRecognizeStream()
-  })
-
-  socket.on('disconnect', () => {
-    recognizeStream.end()
-  })
 })
 
-httpServer.listen(3333, () => {
-  console.log('Server listening on 3333')
+server.listen(3333, () => {
+  console.log(`Server running on port ${3333}`)
 })

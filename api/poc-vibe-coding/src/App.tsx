@@ -1,7 +1,8 @@
-import AudioStream from './components/AudioStream';
+import AudioVADRecorder from './components/AudioVADRecorder'
+import './ta.css'
 
 function App() {
-  return <AudioStream />;
+  return <AudioVADRecorder />
 }
 
-export default App;
+export default App
