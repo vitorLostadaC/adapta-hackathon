@@ -7,8 +7,8 @@ const api = {
     ipcRenderer.send('resize-window', width, height)
   },
 
-  increaseHeight: () => {
-    ipcRenderer.send('increase-height')
+  increaseHeight: (height: number) => {
+    ipcRenderer.send('increase-height', height)
   },
 
   decreaseHeight: () => {

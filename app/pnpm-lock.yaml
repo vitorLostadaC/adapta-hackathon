@@ -29,6 +29,9 @@ importers:
       react-toastify:
         specifier: ^11.0.5
         version: 11.0.5(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      react-use-measure:
+        specifier: ^2.1.7
+        version: 2.1.7(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       socket.io-client:
         specifier: ^4.8.1
         version: 4.8.1
@@ -2675,6 +2678,15 @@ packages:
     peerDependencies:
       react: ^18 || ^19
       react-dom: ^18 || ^19
+
+  react-use-measure@2.1.7:
+    resolution: {integrity: sha512-KrvcAo13I/60HpwGO5jpW7E9DfusKyLPLvuHlUyP5zqnmAPhNc6qTRjUQrdTADl0lpPpDVU2/Gg51UlOGHXbdg==}
+    peerDependencies:
+      react: '>=16.13'
+      react-dom: '>=16.13'
+    peerDependenciesMeta:
+      react-dom:
+        optional: true
 
   react@19.1.0:
     resolution: {integrity: sha512-FS+XFBNvn3GTAWq26joslQgWNoFu08F4kl0J4CgdNKADkdSGXQyTCnKteIAJy96Br6YbpEU1LSzV5dYtjMkMDg==}
@@ -6053,6 +6065,12 @@ snapshots:
     dependencies:
       clsx: 2.1.1
       react: 19.1.0
+      react-dom: 19.1.0(react@19.1.0)
+
+  react-use-measure@2.1.7(react-dom@19.1.0(react@19.1.0))(react@19.1.0):
+    dependencies:
+      react: 19.1.0
+    optionalDependencies:
       react-dom: 19.1.0(react@19.1.0)
 
   react@19.1.0: {}

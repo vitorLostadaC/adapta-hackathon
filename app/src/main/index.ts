@@ -42,10 +42,10 @@ function createWindow(): void {
     }
   })
 
-  ipcMain.on('increase-height', () => {
+  ipcMain.on('increase-height', (_event, height: number) => {
     if (mainWindow) {
-      const [width, height] = mainWindow.getContentSize()
-      const newHeight = height + 41
+      const [width, currentHeight] = mainWindow.getContentSize()
+      const newHeight = currentHeight + height
       mainWindow.setContentSize(width, newHeight)
     }
   })
