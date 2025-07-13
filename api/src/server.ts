@@ -4,7 +4,9 @@ import fs from 'fs'
 import { createServer } from 'http'
 import multer from 'multer'
 import path from 'path'
-import { openai } from './services/open-ai'
+import { speedAudio } from './lib/audio'
+import { groq } from './lib/groq'
+import { supabase } from './lib/supabase'
 
 const app = express()
 const server = createServer(app)
@@ -15,7 +17,6 @@ app.use(express.json())
 const storage = multer.diskStorage({
   destination: 'uploads/',
   filename: (req, file, cb) => {
-    // Preserve original extension so OpenAI can detect the audio format
     const ext = path.extname(file.originalname) || '.webm'
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9)
     cb(null, `${file.fieldname}-${uniqueSuffix}${ext}`)
@@ -25,6 +26,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage })
 app.post('/transcribe', upload.single('audio'), async (req, res) => {
   try {
+    const { type } = req.query
     const file = req.file
     if (!file) {
       return res.status(400).json({ error: 'No audio file uploaded' })
@@ -32,18 +34,24 @@ app.post('/transcribe', upload.single('audio'), async (req, res) => {
 
     const audioPath = file.path
 
-    console.time('openai')
-    const transcription = await openai.audio.transcriptions.create({
-      file: fs.createReadStream(audioPath),
-      model: 'whisper-1',
+    const speededPath = speedAudio(audioPath, 2)
+
+    const transcription = await groq.audio.transcriptions.create({
+      file: fs.createReadStream(speededPath),
+      model: 'whisper-large-v3-turbo',
       language: 'pt'
     })
-    console.timeEnd('openai')
+
+    fs.unlinkSync(audioPath)
+    fs.unlinkSync(speededPath)
 
     console.log(transcription.text)
 
-    // Remove temporary uploaded file
-    fs.unlinkSync(audioPath)
+    await supabase.from('transcriptions').insert({
+      transcript: transcription.text,
+      session_id: '123',
+      type: type as 'user' | 'customer'
+    })
 
     return res.json({ transcription: transcription.text })
   } catch (err) {
