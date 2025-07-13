@@ -1,6 +1,6 @@
 # Adapta Hackathon
 
-![Adapta Hackathon](./github/images/banner.png)
+<img width="1440" height="120" alt="image" src="https://github.com/user-attachments/assets/878650a8-e90d-4ca5-a50d-ca0e178a83c3" />
 
 Reduza o treinamento do seu vendedor de 30 dias para 3! Nos trazemos a resposta certa na hora certa.
 
