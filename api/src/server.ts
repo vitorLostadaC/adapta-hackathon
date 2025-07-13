@@ -1,5 +1,6 @@
 import http from 'http'
 import { Server, Socket } from 'socket.io'
+import { supabase } from './lib/supabase'
 import { speechToText } from './services/speech-to-text'
 
 const httpServer = http.createServer()
@@ -24,8 +25,23 @@ io.on('connection', (socket: Socket) => {
       if (result) {
         const transcript = result.alternatives[0].transcript
         const isFinal = result.isFinal
+
         socket.emit('transcription', { transcript, isFinal })
         console.log(`Transcript: ${transcript} [isFinal: ${isFinal}]`)
+
+        if (isFinal) {
+          supabase
+            .from('transcriptions')
+            .insert({
+              session_id: socket.sessionId,
+              transcript
+            })
+            .then(({ error }) => {
+              if (error) {
+                console.error(error)
+              }
+            })
+        }
       }
     })
 
